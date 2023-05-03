@@ -20,14 +20,14 @@ class TreeStore:
 
         for _, item in self._nodes.items():
             if item["parent"] != "root":
-                self._children[item["parent"]].append(item["id"])
+                self._children[item["parent"]].append(item)
 
         path = []
         def dfs(node):
             path_node = path.copy()
             path_node.reverse()
             self._all_parents[node["id"]] = path_node
-            path.append(node["id"])
+            path.append(node)
 
             children = self.getChildren(node["id"])
             if len(children) == 0:
@@ -53,10 +53,10 @@ class TreeStore:
         return self._nodes[id]
 
     def getChildren(self, id):
-        return [self._nodes[k] for k in self._children[id]]
+        return self._children[id]
 
     def getAllParents(self, id):
-        return [self._nodes[k] for k in self._all_parents[id]]
+        return self._all_parents[id]
 
 
 class RequiredFieldsException(Exception):
