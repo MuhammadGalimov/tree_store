@@ -1,4 +1,6 @@
-from lib import TreeStore
+from lib import TreeStore, RequiredFieldsException, UniqueIdException
+
+import pytest
 
 
 items = [
@@ -14,23 +16,45 @@ items = [
 
 
 def test_create_tree_store():
-    ts = TreeStore(items)
+    _ = TreeStore(items)
 
+def test_create_wrong_tree_1():
+    with pytest.raises(RequiredFieldsException):
+        _ = TreeStore([
+            {"id": 1, "parent": "root"},
+            {"id": 2, "type": "test"}
+        ])
+
+def test_create_wrong_tree_2():
+    with pytest.raises(RequiredFieldsException):
+        _ = TreeStore([
+            {"id": 1, "parent": "root"},
+            {"id": 2, "parent": 1, "type": "test"},
+            [3, 1],
+        ])
+
+def test_create_wrong_tree_3():
+    with pytest.raises(UniqueIdException):
+        _ = TreeStore([
+            {"id": 1, "parent": "root"},
+            {"id": 2, "parent": 1, "type": "test"},
+            {"id": 2, "parent": 1, "type": "test2"},
+        ])
 
 def test_get_all():
-    ts = test_create_tree_store()
+    ts = TreeStore(items)
 
     assert ts.getAll() == items
 
 
 def test_get_item():
-    ts = test_create_tree_store()
+    ts = TreeStore(items)
 
     assert ts.getItem(7) == {"id": 7, "parent": 4, "type": None}
 
 
 def test_get_children():
-    ts = test_create_tree_store()
+    ts = TreeStore(items)
 
     assert ts.getChildren(4) == [
         {"id": 7, "parent": 4, "type": None},
@@ -41,7 +65,7 @@ def test_get_children():
 
 
 def test_get_all_parents():
-    ts = test_create_tree_store()
+    ts = TreeStore(items)
 
     assert ts.getAllParents(7) == [
         {"id": 4, "parent": 2, "type": "test"},
